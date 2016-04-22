@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using Windows.Devices;
+using Windows.Devices.Gpio;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -22,9 +25,32 @@ namespace WindowsIotPwmExample
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private GpioPin _pin;
+
         public MainPage()
         {
             this.InitializeComponent();
+            this.Loaded += OnLoaded;
+        }
+
+        private async void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
+        {
+            var gpioController = await GpioController.GetDefaultAsync();
+            if (gpioController == null)
+            {
+                StatusMessage.Text = "There is no GPIO controller on this device.";
+                return;
+            }
+            _pin = gpioController.OpenPin(22);
+            _pin.SetDriveMode(GpioPinDriveMode.Output);
+            _pin.Write(GpioPinValue.Low);
+        }
+
+        private async void ClickMe_Click(object sender, RoutedEventArgs e)
+        {
+            _pin.Write(GpioPinValue.High);
+            await Task.Delay(500);
+            _pin.Write(GpioPinValue.Low);
         }
     }
 }

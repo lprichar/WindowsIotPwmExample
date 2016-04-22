@@ -10,6 +10,7 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Center">
             <TextBlock x:Name="StatusMessage" HorizontalAlignment="Center">Welcome to Windows IoT!</TextBlock>
+            <Button x:Name="ClickMe" Content="Click Me, Blink an LED" Margin="10" HorizontalAlignment="Center" Click="ClickMe_Click"></Button>
         </StackPanel>
     </Grid>
 </Page>
