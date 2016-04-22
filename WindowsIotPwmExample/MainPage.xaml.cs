@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Devices;
 using Windows.Devices.Gpio;
+using Windows.Devices.Pwm;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -26,7 +27,8 @@ namespace WindowsIotPwmExample
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private GpioPin _pin;
+        private GpioPin _pin22;
+        private PwmPin _pin27;
 
         public MainPage()
         {
@@ -39,6 +41,14 @@ namespace WindowsIotPwmExample
             if (LightningProvider.IsLightningEnabled)
             {
                 LowLevelDevicesController.DefaultProvider = LightningProvider.GetAggregateProvider();
+
+                var pwmControllers = await PwmController.GetControllersAsync(LightningPwmProvider.GetPwmProvider());
+                var pwmController = pwmControllers[1]; // the on-device controller
+                pwmController.SetDesiredFrequency(50); // try to match 50Hz
+
+                _pin27 = pwmController.OpenPin(27);
+                _pin27.SetActiveDutyCyclePercentage(0);
+                _pin27.Start();
             }
 
             var gpioController = await GpioController.GetDefaultAsync();
@@ -47,16 +57,22 @@ namespace WindowsIotPwmExample
                 StatusMessage.Text = "There is no GPIO controller on this device.";
                 return;
             }
-            _pin = gpioController.OpenPin(22);
-            _pin.SetDriveMode(GpioPinDriveMode.Output);
-            _pin.Write(GpioPinValue.Low);
+            _pin22 = gpioController.OpenPin(22);
+            _pin22.SetDriveMode(GpioPinDriveMode.Output);
+            _pin22.Write(GpioPinValue.Low);
         }
 
         private async void ClickMe_Click(object sender, RoutedEventArgs e)
         {
-            _pin.Write(GpioPinValue.High);
+            _pin22.Write(GpioPinValue.High);
             await Task.Delay(500);
-            _pin.Write(GpioPinValue.Low);
+            _pin22.Write(GpioPinValue.Low);
+        }
+
+        private void LedBrightness_OnValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            _pin27.SetActiveDutyCyclePercentage(ledBrightness.Value * .01);
+            ledPercent.Text = ledBrightness.Value + "%";
         }
     }
 }
