@@ -108,3 +108,10 @@ Desktop.ini
 
 Releases/Updates
 /SirenOfShame.Extruder/Services/MySosOnlineService.cs
+
+############
+#DNX
+############
+project.lock.json
+*.opendb
+*.VC.db
