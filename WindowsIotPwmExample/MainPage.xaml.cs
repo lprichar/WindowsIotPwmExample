@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.IoT.Lightning.Providers;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -35,6 +36,11 @@ namespace WindowsIotPwmExample
 
         private async void OnLoaded(object sender, RoutedEventArgs routedEventArgs)
         {
+            if (LightningProvider.IsLightningEnabled)
+            {
+                LowLevelDevicesController.DefaultProvider = LightningProvider.GetAggregateProvider();
+            }
+
             var gpioController = await GpioController.GetDefaultAsync();
             if (gpioController == null)
             {
